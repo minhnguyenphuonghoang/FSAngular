@@ -1,0 +1,83 @@
+*** Settings ***
+Suite Setup       Get Test Data    0.1-2. Sign In Unsuccessfully
+Resource          ../Resource/BusinessKeywords.txt
+Resource          ../Resource/LogicKeywords.txt
+
+*** Test Cases ***
+Sign in with empty values
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[0]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[0]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[0]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with empty email
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[1]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[1]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[1]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with empty password
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[2]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[2]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[2]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with invalid format email
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[3]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[3]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[3]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[3]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with unregistered email
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[4]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[4]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[4]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[4]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with wrong password
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[5]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[5]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[5]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[5]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with unverified primary email
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[6]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[6]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[6]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[6]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with unverified secondary email
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[7]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[7]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[7]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[7]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with old password
+    Open Web App
+    Input    ${Signin_Txt_Username}    ${test_data[8]['Email']}
+    Input    ${Signin_Txt_Password}    ${test_data[8]['Password']}
+    Click    ${Signin_Btn_Login}
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[8]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[8]['TestcaseID']}    ${TEST_STATUS}

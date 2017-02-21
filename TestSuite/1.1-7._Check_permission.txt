@@ -1,0 +1,308 @@
+*** Settings ***
+Suite Setup       Get Test Data    1.1-7. Check permission
+Resource          ../Resource/BusinessKeywords.txt
+Resource          ../Resource/LogicKeywords.txt
+
+*** Test Cases ***
+Recipient CANNOT reshare file if owner set View-Only rights to him
+    ${v_test_data}=    Set Variable    ${test_data[0]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Select File    ${v_test_data['Received File']}
+    ${v_toolbar_items}=    Get Enable Items in Toolbar
+    Should Not Contain    ${v_toolbar_items}    re-share...
+    Right Click File    ${v_test_data['Received File']}
+    ${v_contextmenu_items}=    Get Enable Items in Context Menu
+    Should Not Contain    ${v_contextmenu_items}    re-share...
+    Check Right In File List    ${v_test_data['Received File']}    view-only
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Recipient Can reshare file to other recipients if owner set Re-share rights to him
+    ${v_test_data}=    Set Variable    ${test_data[1]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Select File    ${v_test_data['Received File']}
+    ${v_toolbar_items}=    Get Enable Items in Toolbar
+    Should Contain    ${v_toolbar_items}    re-share...
+    Right Click File    ${v_test_data['Received File']}
+    ${v_contextmenu_items}=    Get Enable Items in Context Menu
+    Should Contain    ${v_contextmenu_items}    re-share...
+    Check Right In File List    ${v_test_data['Received File']}    re-share
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Recipient can remove requiring Add Watermark when he reshapes file to other recipients
+    ${v_test_data}=    Set Variable    ${test_data[2]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    Check State of Switch    ${Reshare_DisplayWatermark}    active
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Recipient CANNOT remove requiring Add Watermark when he reshapes file to other recipients
+    ${v_test_data}=    Set Variable    ${test_data[3]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    Check State of Switch    ${Reshare_DisplayWatermark}    deactive
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Recipient can set Allow Printing when he reshapes file to other recipients
+    ${v_test_data}=    Set Variable    ${test_data[4]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    Check State of Switch    ${Reshare_AllowPrinting}    active
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Recipient CANNOT set Allow Printing when he reshapes file to other recipients
+    ${v_test_data}=    Set Variable    ${test_data[5]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    Check State of Switch    ${Reshare_AllowPrinting}    deactive
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Recipient can view file when his access does NOT reach expiration
+    ${v_test_data}=    Set Variable    ${test_data[6]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Select File    ${v_test_data['Received File']}
+    ${v_toolbar_items}=    Get Enable Items in Toolbar
+    Should Contain    ${v_toolbar_items}    open
+    Right Click File    ${v_test_data['Received File']}
+    ${v_contextmenu_items}=    Get Enable Items in Context Menu
+    Should Contain    ${v_contextmenu_items}    open
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Can modify recipients when his access does NOT reach expiration
+    ${v_test_data}=    Set Variable    ${test_data[7]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Select File    ${v_test_data['Received File']}
+    ${v_toolbar_items}=    Get Enable Items in Toolbar
+    Should Contain    ${v_toolbar_items}    re-share...
+    Right Click File    ${v_test_data['Received File']}
+    ${v_contextmenu_items}=    Get Enable Items in Context Menu
+    Should Contain    ${v_contextmenu_items}    re-share...
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Recipient can change expiration within allowed expiration range when he reshapes file to other recipients
+    ${v_test_data}=    Set Variable    ${test_data[8]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    ${v_expiration2}=    Get Current Date Time    local    1 day
+    Set Expiration    reShareExpiration    ${v_expiration2}
+    Input    ${Reshare_InputRecipient}    abc@yopmail.com,
+    Click    ${Reshare_StringButton}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Msg_Error}
+    Click    ${Reshare_XButton}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Recipient CAN reshare file to other recipients without expiration date
+    ${v_test_data}=    Set Variable    ${test_data[9]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    Set Expiration    reShareExpiration    ${EMPTY}
+    Input    ${Reshare_InputRecipient}    abc@yopmail.com,
+    Click    ${Reshare_StringButton}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Msg_Error}
+    Click    ${Reshare_XButton}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+CANNOT reshare file to other recipients with expiration date which is greater than expiration owner set
+    ${v_test_data}=    Set Variable    ${test_data[10]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    ${v_expiration}=    Get Current Date Time    local    1 days
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_expiration}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    ${v_expiration2}=    Get Current Date Time    local    2 days
+    Set Expiration    reShareExpiration    ${v_expiration2}
+    Input    ${Reshare_InputRecipient}    abc@yopmail.com,
+    Click    ${Reshare_StringButton}
+    Wait For Progress Bar
+    Verify Error Alert With Message    ${v_test_data['Expected Message']} ${v_expiration}.
+    Click    ${Reshare_XButton}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+Can revoke recipients when his access does NOT reach expiration
+    ${v_test_data}=    Set Variable    ${test_data[11]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Do Toolbar Action    ${v_test_data['Received File']}    re-share...
+    Wait For Progress Bar
+    Input    ${Reshare_InputRecipient}    abc@yopmail.com,
+    Click    ${Reshare_StringButton}
+    Wait For Progress Bar
+    Do Toolbar Action    ${v_test_data['Received File']}    revoke access
+    Wait For Progress Bar
+    Click    ${RevokeWarning_Btn_Revoke}
+    Click    ${RevokeWarning_Btn_Close}
+    Wait For Progress Bar
+    ${v_recipients}=    Get Recipients    ${v_test_data['Received File']}    active
+    Should Be Empty    ${v_recipients}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers
+
+FILE IS REVOKE WHEN EXPIRATION REACHED
+    ${v_test_data}=    Set Variable    ${test_data[12]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    ${v_expiration}=    Get Current Date Time    local    1m
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_expiration}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    Sleep    2m
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}    0
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Switch Browser
+    ...    browser1    AND    Delete File    ${v_test_data['File']}    AND    Close All Browsers

@@ -1,0 +1,247 @@
+*** Settings ***
+Suite Setup       Get Test Data    0.2-1. Sign Up Successfully
+Resource          ../Resource/LogicKeywords.txt
+Resource          ../Resource/BusinessKeywords.txt
+Library           ${CURDIR}/../Tool/Libs/DeleteUserInDatabase.py
+
+*** Test Cases ***
+Sign Up with valid info
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[0]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[0]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[0]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[0]['Email']}    ${test_data[0]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[0]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[0]['Email']}
+
+Sign up with email that received file
+    #String file to test email
+    Open Web App    browser1
+    SignIn    sq001@yopmail.com    1234
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    word.doc
+    String File    ${v_pathToDataFile}    ${test_data[1]['Email']}
+    Check File Exist    word.doc
+    SignOut
+    #Delete string file email
+    Connect To Email    ${test_data[1]['Email']}    ${test_data[1]['Email Pass']}
+    Wait For Email
+    Delete All Email
+    #Sign up
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[1]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[1]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[1]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[1]['Email']}    ${test_data[1]['Password']}
+    Navigate To Folder    FileString Received Files/1sq001 Test
+    Check File Exist    word.fcs
+    [Teardown]    Run Keywords    Switch Browser    browser1
+    ...    AND    Delete File    word.doc
+    ...    AND    Submit Test Result    ${test_data[1]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[1]['Email']}
+    ...    AND    Close All Browsers
+
+Sign up with unverified primary email
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[2]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[2]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[1]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[2]['Email']}    ${test_data[2]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[2]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[2]['Email']}
+
+Sign up with unverified 2nd email
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[3]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[3]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[3]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[3]['Email']}    ${test_data[3]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[3]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[3]['Email']}
+
+Sign up with a space at start/end of email
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[4]}
+    Wait For Progress Bar
+    Verify Success Alert With Message    ${test_data[4]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[4]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[4]['Email']}    ${test_data[4]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[4]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[4]['Email']}
+
+Sign up with password having 4 chars
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[5]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[5]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[5]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[5]['Email']}    ${test_data[5]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[5]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[5]['Email']}
+
+Sign up password having 36 chars
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[6]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[6]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[6]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[6]['Email']}    ${test_data[6]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[6]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[6]['Email']}
+
+Sign up with password having 4-36 chars
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[7]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[7]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[7]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[7]['Email']}    ${test_data[7]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[7]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[7]['Email']}
+
+Sign up with first name contain special char
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[8]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[8]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[8]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[8]['Email']}    ${test_data[8]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[8]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[8]['Email']}
+
+Sign up with last name contain special char
+    Connect To Email    ${test_data[0]['Email']}    ${test_data[0]['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[9]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[9]['Sign Up Message']}
+    Wait For Email
+    ${v_link}=    Get A Link In Email    activation
+    Close Connection
+    Wrapper.Open Browser    ${v_link}    ${cfg_webBrowser}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Success}    Page does NOT contain successfull message
+    Verify Success Alert With Message    ${test_data[9]['Verification Message']}
+    Switch Browser    browser1
+    SignIn    ${test_data[9]['Email']}    ${test_data[9]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[9]['TestcaseID']}    ${TEST_STATUS}
+    ...    AND    Delete User In Database    ${test_data[9]['Email']}

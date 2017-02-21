@@ -1,0 +1,27 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_reshareDataFile}    ${v_testcaseID}    AND
+...               Open Web App    AND    SignIn    ${v_data['Direct recipient email address']}    ${v_data['Password']}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[7635]_Can reshare file to downstream recipient after owner revoked him
+    No Operation
+
+fs[7637]_Can reshare file to downstream recipient after direct recipient revoked him
+    No Operation
+
+fs[7639]_Can reshare file to downstream recipient after direct recipient deleted his fcs himself
+    No Operation
+
+fs[7641]_Can reshare file to downstream recipient after direct he deleted his fcs himself
+    No Operation
+
+fs[7643]_Can reshare file to downstream recipient who was revoked due to reducing rights
+    No Operation
+
+fs[7645]_Can reshare file to downstream recipient who was deleted in case direct recipient deleted his fcs hi
+    No Operation
+
+fs[7647]_CANNOT reshare file to his downstream recipient who was changed rights by owner
+    No Operation

@@ -1,0 +1,128 @@
+*** Settings ***
+Suite Setup       Get Test Data    1.1-3. Cancel stringing file
+Resource          ../Resource/BusinessKeywords.txt
+Resource          ../Resource/LogicKeywords.txt
+
+*** Test Cases ***
+File is not sent in case click cancel button
+    ${v_test_data}=    Set Variable    ${test_data[0]}
+    Set Suite Variable    ${v_expiration_box_id}    stringExpiration
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Upload File    ${v_pathToDataFile}
+    Input    ${StringFile_Txt_Recipients}    ${v_test_data['Direct Recipient']},
+    Set Expiration    ${v_expiration_box_id}    ${v_test_data['Expiration']}
+    Set Switch Box    ${StringFile_ChkBx_Printing}    ${v_test_data['Allow Printing']}
+    Set Switch Box    ${StringFile_ChkBx_Watermark}    ${v_test_data['Display Watermark']}
+    Set Access Level    ${StringFile_Mdl}    ${v_test_data['Access Level']}
+    Input    ${StringFile_TxtAr_Note}    ${v_test_data['Note']}
+    Wait Until Page Contains Element    ${StringFile_PrgBar_Upload_Done}    ${cfg_timeout}    Upload failed!
+    Click    ${StringFile_Btn_Cancel}
+    Click    ${Warning_Btn_Yes}
+    Wait For Progress Bar
+    Element Should Not Be Visible    ${StringFile_Mdl}
+    Check File Exist    ${v_test_data['File']}    0
+    #Recipient check
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}    0
+    #Email check
+    ${v_hasEmail}=    Run Keyword And Return Status    Wait For Email
+    Run Keyword If    ${v_hasEmail}==True    Fail    Should NOT receive email, but it does
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Close All Browsers
+
+File is not sent in case click x button
+    ${v_test_data}=    Set Variable    ${test_data[1]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Upload File    ${v_pathToDataFile}
+    Input    ${StringFile_Txt_Recipients}    ${v_test_data['Direct Recipient']},
+    Set Expiration    ${v_expiration_box_id}    ${v_test_data['Expiration']}
+    Set Switch Box    ${StringFile_ChkBx_Printing}    ${v_test_data['Allow Printing']}
+    Set Switch Box    ${StringFile_ChkBx_Watermark}    ${v_test_data['Display Watermark']}
+    Set Access Level    ${StringFile_Mdl}    ${v_test_data['Access Level']}
+    Input    ${StringFile_TxtAr_Note}    ${v_test_data['Note']}
+    Wait Until Page Contains Element    ${StringFile_PrgBar_Upload_Done}    ${cfg_timeout}    Upload failed!
+    Click    ${StringFile_Btn_Close}
+    Click    ${Warning_Btn_Yes}
+    Wait For Progress Bar
+    Element Should Not Be Visible    ${StringFile_Mdl}
+    Check File Exist    ${v_test_data['File']}    0
+    #Recipient check
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}    0
+    #Email check
+    ${v_hasEmail}=    Run Keyword And Return Status    Wait For Email
+    Run Keyword If    ${v_hasEmail}==True    Fail    Should NOT receive email, but it does
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Close All Browsers
+
+File is not sent in case when close browser
+    ${v_test_data}=    Set Variable    ${test_data[2]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Delete All Email
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Upload File    ${v_pathToDataFile}
+    Input    ${StringFile_Txt_Recipients}    ${v_test_data['Direct Recipient']},
+    Set Expiration    ${v_expiration_box_id}    ${v_test_data['Expiration']}
+    Set Switch Box    ${StringFile_ChkBx_Printing}    ${v_test_data['Allow Printing']}
+    Set Switch Box    ${StringFile_ChkBx_Watermark}    ${v_test_data['Display Watermark']}
+    Set Access Level    ${StringFile_Mdl}    ${v_test_data['Access Level']}
+    Input    ${StringFile_TxtAr_Note}    ${v_test_data['Note']}
+    Wait Until Page Contains Element    ${StringFile_PrgBar_Upload_Done}    ${cfg_timeout}    Upload failed!
+    Close Browser
+    #Recipient check
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}    0
+    #Email check
+    ${v_hasEmail}=    Run Keyword And Return Status    Wait For Email
+    Run Keyword If    ${v_hasEmail}==True    Fail    Should NOT receive email, but it does
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Close All Browsers
+
+Cannot share file without enterring recipient
+    ${v_test_data}=    Set Variable    ${test_data[3]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Upload File    ${v_pathToDataFile}
+    Set Expiration    ${v_expiration_box_id}    ${v_test_data['Expiration']}
+    Set Switch Box    ${StringFile_ChkBx_Printing}    ${v_test_data['Allow Printing']}
+    Set Switch Box    ${StringFile_ChkBx_Watermark}    ${v_test_data['Display Watermark']}
+    Set Access Level    ${StringFile_Mdl}    ${v_test_data['Access Level']}
+    Input    ${StringFile_TxtAr_Note}    ${v_test_data['Note']}
+    Wait Until Page Contains Element    ${StringFile_PrgBar_Upload_Done}    ${cfg_timeout}    Upload failed!
+    Wrapper.Page Should NOT Contain    ${StringFile_Btn_String}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+
+Cannot share file without file uploaded
+    ${v_test_data}=    Set Variable    ${test_data[4]}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    Input    ${StringFile_Txt_Recipients}    ${v_test_data['Direct Recipient']},
+    Set Expiration    ${v_expiration_box_id}    ${v_test_data['Expiration']}
+    Set Switch Box    ${StringFile_ChkBx_Printing}    ${v_test_data['Allow Printing']}
+    Set Switch Box    ${StringFile_ChkBx_Watermark}    ${v_test_data['Display Watermark']}
+    Set Access Level    ${StringFile_Mdl}    ${v_test_data['Access Level']}
+    Input    ${StringFile_TxtAr_Note}    ${v_test_data['Note']}
+    Wrapper.Page Should NOT Contain    ${StringFile_Btn_String}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers

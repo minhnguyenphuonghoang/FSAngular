@@ -1,0 +1,24 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_reshareDataFile}    ${v_testcaseID}    AND
+...               Open Web App    AND    SignIn    ${v_data['Direct recipient email address']}    ${v_data['Password']}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[7571]_Direct recipient CANNOT reshare file if he has View-Only rights on his fcs file
+    fsweb_Open A File Or Folder    FileString Received Files
+    Wait For Progress Bar
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    Wait For Progress Bar
+    Right Click File    ${v_data['Filename']}
+    Wait Until Element Is Visible    ${MenuWhenRightClickOnAFile_ReShare}/../self::*[contains(@class, "disabled")]    5    "Re-Share..." button is enabled while expecting disabled
+
+fs[7573]_Direct recipient can reshare file if he has Re-Share rights on his fcs file
+    fsweb_Open A File Or Folder    FileString Received Files
+    Wait For Progress Bar
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    Wait For Progress Bar
+    Right Click File    ${v_data['Filename']}
+    Click    ${MenuWhenRightClickOnAFile_ReShare}
+    Wait For Progress Bar
+    fsweb_Verify_Reshare Popup Should Exist

@@ -1,0 +1,140 @@
+*** Settings ***
+Test Setup        fsweb_LoginSucessfully    ${cfg_test_data_location}\\UserSettings.xlsx    0.1-1. User Settings    Primary Email    Password
+Test Teardown     Run Keywords    SignOut    AND    Close All Browsers
+Resource          ../Resource/wrapper.txt
+Resource          ../Resource/BusinessKeywords.txt
+Resource          ../Resource/UserSetting.txt
+
+*** Test Cases ***
+Click user avatar
+    [Documentation]    Desc: verify pop winndow when click on avatar button
+    fsweb_NavigateToUserSettingPage
+    fsweb_VerifyContentOfUserSettingsPage
+    Comment    fsweb_ClickCloseButton
+
+Check UI and behavior of User Settings
+    fsweb_NavigateToUserSettingPage
+    fsweb_VerifyInputValue    ${First_Name}    ${test_data[0]['FN']}
+    fsweb_VerifyInputValue    ${Last_Name}    ${test_data[0]['LN']}
+    fsweb_VerifyInputValue    ${Secondary_Email}    ${test_data[0]['Secondary Email']}
+    Element Should Be Visible    ${SaveBtn}
+    fsweb_VerifyChangePasswordForm
+
+Add valid secondary email successfully
+    fsweb_NavigateToUserSettingPage
+    fsweb_AddSecondaryEmail    ${test_data[0]['Secondary Email']}
+    fsweb_RemoveSecondaryEmail
+
+Do not allow re-adding already registered email as secondary email
+    fsweb_NavigateToUserSettingPage
+    fsweb_AddSecondaryEmail    ${test_data[0]['Secondary Email']}
+    fsweb_AddSecondaryEmailUnsucessfully    ${test_data[1]['Secondary Email']}    ${test_data[1]['Add Secondary Email Message']} ${test_data[1]['Secondary Email']}.
+    fsweb_AddSecondaryEmailUnsucessfully    ${test_data[0]['Secondary Email']}    ${test_data[1]['Add Secondary Email Message']} ${test_data[0]['Secondary Email']}.
+    fsweb_RemoveSecondaryEmail
+
+Do not allow adding wrong email format as secondary email
+    fsweb_NavigateToUserSettingPage
+    log    verify invalid email address
+    fsweb_VerifySecondaryEmailFieldIvalidData    ${test_data[2]['Secondary Email']}    ${cfg_sikuli_baseddir}/UserSetting/InvalidEmailFormat.png
+    log    verify empty email address
+    fsweb_VerifySecondaryEmailFieldIvalidData    ${empty}    ${cfg_sikuli_baseddir}/UserSetting/Emptyemailaddr.png
+
+Add valid [First Name/Last Name] successfully
+    fsweb_NavigateToUserSettingPage
+    Log    Verify avatar icon for current first name and last name
+    Object Exists    ${cfg_sikuli_baseddir}\\UserSetting\\Before.png    0.9    30
+    Sleep    1
+    log    Change first name and last name
+    fsweb_EditFirstNameAndLastName    ${test_data[3]['FN']}    ${test_data[3]['LN']}
+    fsweb_VerifyMsg    ${Edit_First_Name_And_Last_Name_Form}    ${test_data[3]['Add Secondary Email Message']}
+    log    Verify icon
+    Object Exists    ${cfg_sikuli_baseddir}\\UserSetting\\After.png    0.9    30
+    log    verify information after editing
+    fsweb_VerifyDataInTextField    ${First_Name}    ${test_data[3]['FN']}
+    fsweb_VerifyDataInTextField    ${Last_Name}    ${test_data[3]['LN']}
+    [Teardown]    Run Keywords    fsweb_EditFirstNameAndLastName    ${test_data[0]['FN']}    ${test_data[0]['LN']}    AND    SignOut
+    ...    AND    Close All Browsers
+
+Do not allow leaving [First Name/Last Name] blank when update [First Name/Last Name]
+    fsweb_NavigateToUserSettingPage
+    fsweb_EditFirstNameAndLastName    ${empty}    ${empty}
+    fsweb_VerifyMsg    ${Edit_First_Name_And_Last_Name_Form}    ${test_data[4]['Add Secondary Email Message']}
+    log    verify information after editing
+    Click Element    ${Personal_Tab}
+    fsweb_VerifyDataInTextField    ${First_Name}    ${test_data[0]['FN']}
+    fsweb_VerifyDataInTextField    ${Last_Name}    ${test_data[0]['LN']}
+
+Do not allow update [First Name/Last Name] having more than 128 character
+    fsweb_NavigateToUserSettingPage
+    fsweb_Verify Max Length Of A TextBox    ${First_Name}    128
+    Click Button    ${SaveBtn}
+    log    check max legth of pasword field
+    fsweb_Verify Max Length Of A TextBox    ${Last_Name}    128
+    Click Button    ${SaveBtn}
+    Log    Update to original values
+    fsweb_EditFirstNameAndLastName    ${test_data[0]['FN']}    ${test_data[0]['LN']}
+
+Change to valid password successfully
+    fsweb_NavigateToUserSettingPage
+    fsweb_ChangePasswordTmpl    ${test_data[0]['Password']}    ${test_data[5]['New Password']}    ${test_data[5]['Confirm Password']}
+    fsweb_VerifyMsg    ${Edit_First_Name_And_Last_Name_Form}    ${test_data[5]['Add Secondary Email Message']}
+    SignOut
+    SignIn    ${test_data[0]['Primary Email']}    ${test_data[5]['New Password']}
+    fsweb_NavigateToUserSettingPage
+    [Teardown]    Run Keywords    fsweb_ChangePasswordTmpl    ${test_data[5]['Confirm Password']}    ${test_data[0]['Password']}    ${test_data[0]['Password']}    AND
+    ...    SignOut    AND    Close All Browsers
+
+Do not allow changing password with: Invalid Old Password
+    fsweb_NavigateToUserSettingPage
+    fsweb_ChangePasswordTmpl    ${test_data[6]['Password']}    ${test_data[6]['New Password']}    ${test_data[6]['Confirm Password']}
+    Selenium2Library.Page Should Contain    ${test_data[6]['Add Secondary Email Message']}
+    SignOut
+    fsweb_SignInUnsucessfully    ${test_data[0]['Primary Email']}    ${test_data[6]['New Password']}    ${test_data[6]['Add Secondary Email Message']}
+    [Teardown]    Close All Browsers
+
+Do not allow changing password with: Invalid Confirm New Password
+    fsweb_NavigateToUserSettingPage
+    fsweb_ChangePasswordTmpl    ${test_data[7]['Password']}    ${test_data[7]['New Password']}    ${test_data[7]['Confirm Password']}
+    Selenium2Library.Page Should Contain    ${test_data[7]['Add Secondary Email Message']}
+    SignOut
+    fsweb_SignInUnsucessfully    ${test_data[0]['Primary Email']}    ${test_data[7]['New Password']}    ${test_data[6]['Add Secondary Email Message']}
+    [Teardown]    Close All Browsers
+
+Do not allow changing password with: Invalid New Password, Confirm New Password
+    fsweb_NavigateToUserSettingPage
+    fsweb_ChangePasswordTmpl    ${test_data[8]['Password']}    ${test_data[8]['New Password']}    ${test_data[8]['Confirm Password']}
+    Selenium2Library.Page Should Contain    ${test_data[8]['Add Secondary Email Message']}
+    SignOut
+    fsweb_SignInUnsucessfully    ${test_data[0]['Primary Email']}    ${test_data[8]['New Password']}    ${test_data[6]['Add Secondary Email Message']}
+    [Teardown]    Close All Browsers
+
+Do not allow changing password with: Invalid Old Password, New Password
+    fsweb_NavigateToUserSettingPage
+    fsweb_ChangePasswordTmpl    ${test_data[9]['Password']}    ${test_data[9]['New Password']}    ${test_data[9]['Confirm Password']}
+    Selenium2Library.Page Should Contain    ${test_data[9]['Add Secondary Email Message']}
+    SignOut
+    fsweb_SignInUnsucessfully    ${test_data[0]['Primary Email']}    ${test_data[9]['New Password']}    ${test_data[6]['Add Secondary Email Message']}
+    [Teardown]    Close All Browsers
+
+Do not allow changing password with: Invalid Old Password, Confirm New Password
+    fsweb_NavigateToUserSettingPage
+    fsweb_ChangePasswordTmpl    ${test_data[10]['Password']}    ${test_data[10]['New Password']}    ${test_data[10]['Confirm Password']}
+    Selenium2Library.Page Should Contain    ${test_data[10]['Add Secondary Email Message']}
+    SignOut
+    fsweb_SignInUnsucessfully    ${test_data[0]['Primary Email']}    ${test_data[10]['New Password']}    ${test_data[6]['Add Secondary Email Message']}
+    [Teardown]    Close All Browsers
+
+Do not allow changing password with: Invalid Old Password, New Password, Confirm New Password
+    fsweb_NavigateToUserSettingPage
+    fsweb_ChangePasswordTmpl    ${test_data[11]['Password']}    ${test_data[11]['New Password']}    ${test_data[11]['Confirm Password']}
+    Selenium2Library.Page Should Contain    ${test_data[11]['Add Secondary Email Message']}
+    SignOut
+    fsweb_SignInUnsucessfully    ${test_data[0]['Primary Email']}    ${test_data[11]['New Password']}    ${test_data[6]['Add Secondary Email Message']}
+    [Teardown]    Close All Browsers
+
+Change primary email among registered email successfully
+    fsweb_NavigateToUserSettingPage
+    Connect To Email    fsautomation05@gmail.com    1qazxsw2@
+    Delete All Email
+    fsweb_AddSecondaryEmail    ${test_data[0]['Secondary Email']}
+    Comment    fsweb_VerifyEmailYopMail    ${test_data[0]['Secondary Email']}

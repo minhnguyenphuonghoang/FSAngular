@@ -1,0 +1,51 @@
+*** Settings ***
+Library           ../Tool/Libs/Data.py
+Resource          Config.txt
+Library           ../Tool/Libs/TestlinkAPIClient.py    ${cfg_apiKey}    ${cfg_testplanID}    ''
+Library           String
+Library           DateTime
+
+*** Variables ***
+
+*** Keywords ***
+Get Test Data
+    [Arguments]    ${sheet_name}    ${file_path}=${cfg_test_data_file_path}
+    Log    ${file_path}
+    ${temp}=    Get Data By Sheet Name    ${file_path}    ${sheet_name}
+    Set Suite Variable    ${test_data}    ${temp}
+
+Get Current Date Time
+    [Arguments]    ${time_zone}=local    ${increment}=0
+    ${v_cur_time}=    Get Current Date    ${time_zone}    ${increment}    %m/%d/%Y %I:%M %p
+    [Return]    ${v_cur_time}
+
+Submit Test Result
+    [Arguments]    ${testcaseID}    ${result}    ${note}=''
+    Run Keyword If    ${cfg_isSubmitToTestlink}== True    Run Keywords    Run Keyword If    '${result.lower()}'=='pass'    Report TC Result    ${testcaseID}
+    ...    ${cfg_buildID}    p    ${note}
+    ...    AND    Run Keyword If    '${result.lower()}'=='fail'    Report TC Result    ${testcaseID}    ${cfg_buildID}
+    ...    f    ${note}
+
+Get Test Case ID From Test Case Name
+    [Documentation]    Author: Minh.nguyen
+    ...
+    ...    Desc: Get test case ID from test case name
+    ...
+    ...    Datetime: March 23, 2015
+    ${v_testcaseID}=    TestlinkAPIClient.Get Test Case ID From Test Name    ${TEST_NAME}
+    Set Test Variable    ${v_testcaseID}
+
+Delete User Information In Database
+    [Arguments]    ${v_emailAddress}
+    #    Connect to database
+    ${v_isConnectedToDatabase}=    Run Keyword And Ignore Error    DatabaseLibrary.Connect To Database Using Custom Params    adodbapi    'Provider=SQLOLEDB.1;Data Source=${cfg_db_source};Initial Catalog=${cfg_db_name};User Id=${cfg_db_username};Password=${cfg_db_password};'
+    Run Keyword If    '${v_isConnectedToDatabase[0]}'=='FAIL'    Fail    Could not connect to database, the error was: "${v_isConnectedToDatabase[1]}"
+    #    Get current account ID based on its email address
+    ${v_userID}=    DatabaseLibrary.Query    select UserID from [User] where Username='${v_emailAddress.strip()}'
+    ${v_userID}=    Replace String    ${v_userID[0][0]}    {    ${EMPTY}
+    ${v_userID}=    Replace String    ${v_userID}    }    ${EMPTY}
+    #    Delete User In database
+    Run Keyword And Ignore Error    DatabaseLibrary.Execute Sql String    DELETE FROM NotificationDeviceToken WHERE DeviceOwnerId = '${v_userID}' ; DELETE FROM wizarduser WHERE userid = '${v_userID}' ; DELETE FROM [user] WHERE username = '${v_emailAddress.strip()}'
+    #    Verify Account must not exist in database
+    ${v_isAccountExistInDatabase}=    Run Keyword And Ignore Error    DatabaseLibrary.Check If Exists In Database    select UserID from [User] where Username='${v_emailAddress.strip()}'
+    Run Keyword If    '${v_isAccountExistInDatabase[0]}'=='PASS'    Fail    Your account: "${v_emailaddress}" still exist in database after delete!!!

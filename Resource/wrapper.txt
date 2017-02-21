@@ -1,0 +1,66 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          Config.txt
+Resource          BusinessKeywords.txt
+Resource          LogicKeywords.txt
+Library           Collections
+
+*** Keywords ***
+Click
+    [Arguments]    ${locator}    ${timeout}=${cfg_timeout}    ${v_errorMessage}=${EMPTY}
+    Comment    Run Keyword If    "${v_errorMessage}"=="${EMPTY}"    Wait Until Element Is Visible    ${locator}    ${timeout}
+    ...    ELSE    Wait Until Element Is Visible    ${locator}    ${timeout}    ${v_errorMessage}
+    Selenium2Library.Click Element    ${locator}
+
+DblClick
+    [Arguments]    ${locator}    ${timeout}=${cfg_timeout}
+    Wait Until Element Is Visible    ${locator}    ${timeout}
+    Selenium2Library.Double Click Element    ${locator}
+
+Page Should Contain
+    [Arguments]    ${locator}    ${errorMessage}=${EMPTY}
+    Wait For Progress Bar
+    Selenium2Library.Page Should Contain Element    ${locator}    Page does NOT contain expected element: ${locator}
+
+Open Browser
+    [Arguments]    ${url}    ${browser}=${cfg_webBrowser}    ${alias}=None
+    Run Keyword If    ${cfg_isRunOnGrid}==False    Selenium2Library.Open Browser    ${url}    ${browser}    ${alias}
+    Run Keyword If    ${cfg_isRunOnGrid}==True    Selenium2Library.Open Browser    ${url}    ${browser}    ${alias}    remote_url=http://${cfg_hubIP}:${cfg_hubPort}/wd/hub
+    ...    desired_capabilities=browserName:${browser}
+    Selenium2Library.Set Selenium Speed    ${cfg_selenium_speed}
+    Comment    Set Browser Implicit Wait    10s
+    Comment    Set Selenium Implicit Wait    10s
+    Maximize Browser Window
+
+Input
+    [Arguments]    ${locator}    ${text}    ${timeout}=${cfg_timeout}
+    Wait Until Page Contains Element    ${locator}    ${timeout}
+    Input Text    ${locator}    ${text}
+
+Page Should NOT Contain
+    [Arguments]    ${locator}    ${timeout}=${cfg_timeout}
+    Wait For Progress Bar
+    Selenium2Library.Page Should Not Contain Element    ${locator}    Page contains element: ${locator}, but it should NOT
+
+Choose File
+    [Arguments]    ${locator}    ${file_path}    ${timeout}=${cfg_timeout}
+    Wait Until Element Is Visible    ${locator}    ${timeout}
+    Selenium2Library.Choose File    ${locator}    ${file_path}
+    Log    Choose file: ${file_path}
+    Sleep    3s
+
+Switch On
+    [Arguments]    ${locator}    ${timeout}=${cfg_timeout}
+    Wait Until Page Contains Element    ${locator}    ${timeout}
+    Execute Javascript    if(document.evaluate('${locator}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.checked == false){ document.evaluate('${locator}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click(); }
+
+Switch Off
+    [Arguments]    ${locator}    ${timeout}=${cfg_timeout}
+    Wait Until Page Contains Element    ${locator}    ${timeout}
+    Execute Javascript    if(document.evaluate('${locator}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.checked == true){ document.evaluate('${locator}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click(); }
+
+fsweb_LoginSucessfully
+    [Arguments]    ${v_DataFileName}    ${v_SheetName}    ${v_Email}    ${v_Password}
+    Get Test Data    ${v_SheetName}    ${v_DataFileName}
+    Wrapper.Open Browser    ${cfg_url}    ${cfg_webBrowser}
+    SignIn    ${test_data[0]['${v_Email}']}    ${test_data[0]['${v_Password}']}

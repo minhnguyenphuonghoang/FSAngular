@@ -1,0 +1,302 @@
+*** Settings ***
+Suite Setup       Get Test Data    1.1-9. Content of file
+Resource          ../Resource/LogicKeywords.txt
+Resource          ../Resource/BusinessKeywords.txt
+
+*** Test Cases ***
+Can share document file has normal text
+    ${v_test_data}=    Set Variable    ${test_data[0]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share document file has hyperlink
+    ${v_test_data}=    Set Variable    ${test_data[1]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share document file has macro
+    ${v_test_data}=    Set Variable    ${test_data[2]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share document file has image
+    ${v_test_data}=    Set Variable    ${test_data[3]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share document file has formatting
+    ${v_test_data}=    Set Variable    ${test_data[4]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share file mp4 for specific device
+    ${v_test_data}=    Set Variable    ${test_data[5]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share standard mp4
+    ${v_test_data}=    Set Variable    ${test_data[6]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share file mp4 which is converted from another file type
+    ${v_test_data}=    Set Variable    ${test_data[7]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share file mp3 which is converted from another file type
+    ${v_test_data}=    Set Variable    ${test_data[8]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share image which has large resolution
+    ${v_test_data}=    Set Variable    ${test_data[9]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share document file which is created from office 2003
+    ${v_test_data}=    Set Variable    ${test_data[10]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers
+
+Can share document file which is created from MS 2007 and up BUT save with doc extension
+    ${v_test_data}=    Set Variable    ${test_data[11]}
+    Connect To Email    ${v_test_data['Direct Recipient']}    ${v_test_data['Email Pass']}
+    Open Web App    browser1
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    ${v_pathToDataFile}=    Join Path    ${cfg_test_data_location}    FileTypeSupported    ${v_test_data['File']}
+    Delete All Email
+    String File    ${v_pathToDataFile}    ${v_test_data['Direct Recipient']}    ${v_test_data['Access Level']}    ${v_test_data['Expiration']}    ${v_test_data['Allow Printing']}    ${v_test_data['Display Watermark']}
+    ...    ${v_test_data['Note']}
+    Check File Exist    ${v_test_data['File']}
+    #Check Email
+    Wait For Email
+    ${v_expected_email}=    Evaluate    {'body':[${v_test_data['Expected Email Body']}], 'subject':'${v_test_data['Expected Email Subject']}'}
+    ${v_result}=    Check Email Content    ${v_expected_email}
+    Should Be Equal    ${v_result}    ${EMPTY}
+    # Recipient view received file
+    Open Web App    browser2
+    SignIn    ${v_test_data['Direct Recipient']}    ${v_test_data['Direct Recipient Pass']}
+    Navigate To Folder    ${v_test_data['Received Folder']}
+    Check File Exist    ${v_test_data['Received File']}
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close Connection
+    ...    AND    Switch Browser    browser1    AND    Delete File    ${v_test_data['File']}
+    ...    AND    Close All Browsers

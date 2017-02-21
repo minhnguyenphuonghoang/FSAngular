@@ -1,0 +1,151 @@
+*** Settings ***
+Variables         ../GuiMap/ObjectRepository.py
+Resource          wrapper.txt
+Library           Selenium2Library
+Library           String
+
+*** Keywords ***
+fsweb_NavigateToUserSettingPage
+    Wait Until Element Is Visible    ${Account_Menu}    ${cfg_timeout}    Account form is not available
+    Click Element    ${Account_Menu}
+    Wait Until Element Is Visible    ${Account_Menu_Form}    ${cfg_timeout}    Change password form does not exist
+    Click Link    ${User_Setting}
+    Wait Until Element Is Visible    ${User_Info}    ${cfg_timeout}    Change password form does not exist
+    Click Element    ${User_Info}
+    Wait Until Element Is Visible    ${Last_Name}
+
+fsweb_ClickCloseButton
+    Element Should Be Visible    ${UserSettings_Btn_Close}    Close button of change password form is not appeared
+    Wait Until Keyword Succeeds    9    3    Click Element    ${UserSettings_Btn_Close}
+    Wait Until Keyword Succeeds    10    2    Element Should Not Be Visible    ${UserSettings_Mdl}    Change password form is not disappeared as expected
+
+fsweb_VerifyContentOfUserSettingsPage
+    Wait Until Keyword Succeeds    30    2    Element Should Be Visible    ${UserSettings_Mdl}    Change password form is not displayed
+
+fsweb_ScrollUserSettingForm
+    Execute Javascript    window.scrollTo(0,2000)
+
+fsweb_VerifyInputValue
+    [Arguments]    ${v_Locator}    ${v_Value}
+    Element Should Be Visible    ${v_Locator}    Element is not available
+    Clear Element Text    ${v_Locator}
+    Input Text    ${v_Locator}    ${v_Value}
+    ${v_ActualVal}=    Get value    ${v_Locator}
+    ${v_result}=    Should Be Equal    ${v_ActualVal}    ${v_Value}
+    Run Keyword If    ${v_result}=='FAIL'    Data is not the same
+
+fsweb_VerifyChangePasswordForm
+    [Documentation]    Desc: verify basic behavior and UI of change password frame
+    Wait Until Element Is Visible    ${Change_Password}
+    ${v_status}=    Get Element Attribute    xpath=(${ChangePass_Form})@class
+    ${v_result}=    Should Be Equal    collapse    ${v_status}
+    Run Keyword If    ${v_result}=='False'    Invaid atribute for change password form
+    Click Link    ${Change_Password}
+    Sleep    0.5
+    ${v_status}=    Get Element Attribute    xpath=(${ChangePass_Form})@class
+    ${v_result}=    Should Be Equal    collapse in    ${v_status}
+    Run Keyword If    ${v_result}=='False'    Invaid atribute for change password form
+    fsweb_VerifyInputValue    ${Current_Password}    test
+    fsweb_VerifyInputValue    ${New_Password}    test1
+    fsweb_VerifyInputValue    ${Confirm_Password}    test1
+    Element Should Be Visible    ${SavePassBtn}
+
+fsweb_AddSecondaryEmail
+    [Arguments]    ${v_2ndEmail}
+    Wait Until Element Is Visible    ${UserSettings_Mdl}    ${cfg_timeout}    Change password form is not displayed
+    ${v_isExisted}=    Run Keyword And Return Status    Selenium2Library.Page Should Contain    ${v_2ndEmail}    Check 2nd email address
+    Run Keyword If    ${v_isExisted}==True    Click Element    ${Add_Secondary_Email_Remove_Email_Btn}
+    Input Text    ${Secondary_Email}    ${v_2ndEmail}
+    sleep    0.5
+    Click Element    ${Add_Secondary_Email_Btn}
+    Sleep    1
+    Wait Until Element Is Visible    ${Add_Secondary_Email_Form}    ${cfg_timeout}    2nd email form is not visible
+    ${v_IscontentExisted}=    Get text    ${Add_Secondary_Email_Message}
+    ${v_status}=    Should Be Equal    ${v_IscontentExisted}    ${test_data[0]['Add Secondary Email Message']}
+    Run Keyword If    ${v_status}=='FALSE'    Confirm message is not the same
+    Click Button    ${Add_Secondary_Email_OKBtn}
+    Wait Until Keyword Succeeds    30    2    Element Should Not Be Visible    ${Add_Secondary_Email_Message}    Confirm message is still available
+    Selenium2Library.Page Should Contain    ${test_data[0]['Secondary Email']}    2nd email is existed
+    Element Should Be Visible    ${Add_Secondary_Email_Remove_Email_Btn}    Remove 2nd email button is not available
+    Element Should Be Visible    ${Add_Secondary_Email_Send_Verification_Email_Btn}    Resend verification email button is not available
+
+fsweb_RemoveSecondaryEmail
+    Click Element    ${Add_Secondary_Email_Remove_Email_Btn}
+    Selenium2Library.Element Should Not Be Visible    ${test_data[0]['Secondary Email']}
+
+fsweb_VerifySecondaryEmailFieldIvalidData
+    [Arguments]    ${v_2ndEmail}    ${v_VerificationPoint}
+    Wait Until Element Is Visible    ${Secondary_Email}
+    Input Text    ${Secondary_Email}    ${v_2ndEmail}
+    Click Element    ${Add_Secondary_Email_Btn}
+    Sikuli.Object Exists    ${v_VerificationPoint}    0.9    30
+
+fsweb_AddSecondaryEmailUnsucessfully
+    [Arguments]    ${v_2ndEmail}    ${v_ErrorMsg}
+    [Documentation]    Desc: Add secondary email that is registerd already
+    ...    1. Registered as secondary email
+    ...    2. Registered as primary email
+    Wait Until Element Is Visible    ${Secondary_Email}
+    Input Text    ${Secondary_Email}    ${v_2ndEmail}
+    Click Element    ${Add_Secondary_Email_Btn}
+    Wait Until Keyword Succeeds    30    2    Element Should Be Visible    ${Add_Secondary_Email_Form}
+    ${v_IscontentExisted}=    Get text    ${Add_Secondary_Email_Message}
+    ${v_status}=    Should Be Equal    ${v_IscontentExisted}    ${v_ErrorMsg}
+    Run Keyword If    ${v_status}=='FALSE'    Confirm message is not the same
+    Click Button    ${Add_Secondary_Email_OKBtn}
+    Wait Until Keyword Succeeds    30    2    Element Should Not Be Visible    ${Add_Secondary_Email_Message}
+    Element Should Contain    ${Add_Secondary_Email_Label}    ${test_data[0]['Secondary Email']}
+    Element Should Be Visible    ${Add_Secondary_Email_Remove_Email_Btn}
+    Element Should Be Visible    ${Add_Secondary_Email_Send_Verification_Email_Btn}
+
+fsweb_VerifyMsg
+    [Arguments]    ${v_Locator}    ${v_Msg}
+    [Documentation]    Desc: Verify message is the same or not
+    Wait Until Keyword Succeeds    10    2    Wait Until Element Is Visible    ${v_Locator}    ${cfg_timeout}    ${v_locator} is not displayed
+    ${v_IsContentExisted}=    Get Text    ${v_Locator}
+    ${v_result}=    Get Substring    ${v_IsContentExisted}    8
+    ${v_status}=    Should Be Equal    ${v_result}    ${v_Msg}
+    Run Keyword If    ${v_status}=='FAIL'    Message is not the same
+
+fsweb_EditFirstNameAndLastName
+    [Arguments]    ${v_FirstName}    ${v_LastName}
+    Sleep    2
+    fsweb_VerifyInputValue    ${First_Name}    ${v_FirstName}
+    fsweb_VerifyInputValue    ${Last_Name}    ${v_LastName}
+    Click Button    ${SaveBtn}
+
+fsweb_VerifyDataInTextField
+    [Arguments]    ${v_Locator}    ${v_ExpectedText}
+    Sleep    2
+    Wait Until Element Is Visible    ${v_Locator}
+    ${v_IsContentExisted}=    Get Value    ${v_Locator}
+    ${v_result}=    Should Be Equal    ${v_IsContentExisted}    ${v_ExpectedText}
+    Run Keyword If    ${v_result}=='FAIL'    Data is not the same
+
+fsweb_ChangePasswordTmpl
+    [Arguments]    ${v_CurPass}    ${v_NewPass}    ${v_ConfirmPass}
+    [Documentation]    Author: nguyen.pham
+    ...    Desc: This is test template is used for change password of a user
+    ...    Datetime: Mar-17, 2015
+    log    Open change password form
+    Click Link    ${Change_Password}
+    Wait Until Element Is Visible    ${SavePassBtn}
+    fsweb_VerifyInputValue    ${Current_Password}    ${v_CurPass}
+    fsweb_VerifyInputValue    ${New_Password}    ${v_NewPass}
+    fsweb_VerifyInputValue    ${Confirm_Password}    ${v_ConfirmPass}
+    Click    ${SavePassBtn}
+
+fsweb_SignInUnsucessfully
+    [Arguments]    ${v_UserName}    ${v_Password}    ${v_ErrMsg}
+    Input    ${Signin_Txt_Username}    ${v_UserName}
+    Input    ${Signin_Txt_Password}    ${v_Password}
+    Click    ${Signin_Btn_Login}
+    fsweb_VerifyMsg    ${Msg_Error}    ${v_ErrMsg}
+
+fsweb_VerifyEmailYopMail
+    [Arguments]    ${v_Email}
+    Selenium2Library.Open Browser    yopmail.com    ${cfg_webBrowser}    browser2
+    Input Text    //*[@id="login"]    ${v_Email}
+    Click Element    //*[@id="lrefr"]/span/span
+    Wait Until Keyword Succeeds    30    2    Click Element    //*[@id="mailmillieu"]/div[2]/table/tbody/tr/td/table/tbody/tr[2]/td/p[4]/a
+    fsweb_VerifyMsg    ${Verify_Email_Msg}    ${test_data[12]['Add Secondary Email Message']}

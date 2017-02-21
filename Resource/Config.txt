@@ -1,0 +1,29 @@
+*** Settings ***
+Library           ../Tool/Libs/Email.py
+
+*** Variables ***
+${cfg_timeout}    15s    # Time waiting for elements exist
+${cfg_url}        https://webstg.filestring.net/    # App url
+${cfg_test_data_file_path}    ${cfg_test_data_location}/Test Data.xlsx    # Path to test data file
+${cfg_test_data_location}    ${CURDIR}/../DataSet    # Location where store test data serving test execution
+${cfg_sleep}      1    # Sleep time
+${cfg_buildID}    204
+${cfg_selenium_speed}    0
+${cfg_isSubmitToTestlink}    True    # True or False
+${cfg_sikuli_baseddir}    Z:/workspace/FS_WEB_GRID/WEB_AT/DataSet/Sikuli
+${cfg_webBrowser}    chrome
+${cfg_db_name}    FileString_Staging
+${cfg_db_source}    yxgx5mqv7u.database.windows.net
+${cfg_db_username}    storycloud@yxgx5mqv7u
+${cfg_db_password}    NasdfsdfVDADasd3325673
+${cfg_apiKey}     6548fe711c80a512412c88a44817a7f9
+${cfg_testplanID}    26336
+${cfg_sikuli_ip_adress}    192.168.1.76:8271
+${cfg_hubIP}      192.168.1.76
+${cfg_hubPort}    5550
+${cfg_nodeIP}     192.168.1.76
+${cfg_nodePort}    5550
+${cfg_nodeIP}     ${EMPTY}
+${cfg_nodePort}    ${EMPTY}
+${cfg_isRunOnGrid}    False    # TrueOrFalse
+${cfg_isVerifyEmail}    False    # True or False

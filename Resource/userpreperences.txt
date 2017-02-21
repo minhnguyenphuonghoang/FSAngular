@@ -1,0 +1,35 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+fsweb_InvokePreferenceForm
+    Wait Until Element Is Visible    ${Account_Menu}    ${cfg_timeout}    Account form is not available
+    Click Element    ${Account_Menu}
+    Wait Until Element Is Visible    ${Account_Menu_Form}    ${cfg_timeout}    Change password form does not exist
+    Click Link    ${User_Setting}
+    Wait Until Keyword Succeeds    30    2    Element Should Be Visible    ${User_Preference_Link}
+    Click Element    ${User_Preference_Link}
+    Wait Until Keyword Succeeds    30    2    Element Should Be Visible    ${UserPreferences}    User preferences panel doesn't exist.
+
+fsweb_CloseUerPreperenceForm
+    Element Should Be Visible    ${User_Pre_Cancel_Btn}    Close button is not available
+    Click Button    ${User_Pre_Cancel_Btn}
+
+fsweb_ClickUserPreperencesTab
+    [Arguments]    ${v_Tab}    ${v_ExpectedForm}    ${v_ErrMsg}
+    Wait Until Element Is Visible    ${UserPreferences}    ${cfg_timeout}    User preperences form is not available
+    Click Link    ${v_Tab}
+    Wait Until Element Is Visible    ${v_ExpectedForm}    30    ${v_ErrMsg}
+
+fsweb_VerifyCheckBoxStatus
+    [Arguments]    ${v_Locator}    ${v_isChecked}
+    Run Keyword If    '${v_isChecked}==1'    Checkbox Should Be Selected    ${v_Locator}    ELSE    Run Keyword If    '${v_isChecked}==0'
+    ...    Checkbox Should Not Be Selected    ${v_Locator}
+
+fsweb_VerifyButtonStatus
+    [Arguments]    ${v_status}    ${status}
+    Wait Until Element Is Visible    //div[@id="AppSetting"]/div/div/div[3]/button[text()="Cancel" and contains(@class, "${status}")]
+    Wait Until Page Contains Element    //div[@id="AppSetting"]/div/div/div[3]/button[text()="Cancel" and contains(@class, "${status}")]    30    ${v_status}
+
+fsweb_VerifyRadioButtonStatus
+    [Arguments]    ${v_Locator}    ${v_isSelected}

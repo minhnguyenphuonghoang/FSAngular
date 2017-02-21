@@ -1,0 +1,24 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_reshareDataFile}    ${v_testcaseID}    AND
+...               Open Web App    AND    SignIn    ${v_data['Direct recipient email address']}    ${v_data['Password']}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[7363]_Reshare a file to recipients from Re-Share command on context menu
+    fsweb_Open A File Or Folder    FileString Received Files
+    Wait For Progress Bar
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    Wait For Progress Bar
+    Right Click File    ${v_data['Filename']}
+    Click    ${MenuWhenRightClickOnAFile_ReShare}
+    fsweb_Verify_Reshare Popup Should Exist
+
+fs[7365]_Reshare a file to recipients from Add Recipients command on context menu
+    fsweb_Open A File Or Folder    FileString Received Files
+    Wait For Progress Bar
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    Wait For Progress Bar
+    Select File    ${v_data['Filename']}
+    Click    ${Toolbar_StringOrReshare}
+    fsweb_Verify_Reshare Popup Should Exist

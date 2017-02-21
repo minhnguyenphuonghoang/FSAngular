@@ -1,0 +1,414 @@
+*** Settings ***
+Resource          Config.txt
+Resource          wrapper.txt
+Variables         ../GuiMap/ObjectRepository.py
+Library           String
+Library           ../Tool/Libs/TestlinkAPIClient.py    ${cfg_apiKey}    ${cfg_testplanID}    ''
+Resource          CommonKeywords.txt
+Resource          Resetpassword.txt
+Resource          RevokeAccess.txt
+Library           OperatingSystem
+Resource          AddRecipients.txt
+Resource          RestoreAccess.txt
+Resource          LogicKeywords.txt
+
+*** Keywords ***
+SignIn
+    [Arguments]    ${username}    ${password}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Sign In Successfully (included verification)
+    Input    ${Signin_Txt_Username}    ${username}
+    Input    ${Signin_Txt_Password}    ${password}
+    Click    ${Signin_Btn_Login}
+    Comment    Wrapper.Page Should NOT Contain    ${Msg_Error}
+    Wait For Loading Screen
+
+SignOut
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Sign Out (included verification)
+    Click Account Menu
+    Click    ${Btn_LogOut}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Signin_Btn_Login}
+
+SignUp
+    [Arguments]    ${account_info}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Sign Out (NOT included verification)
+    Input    ${Signup_Txt_FirstName}    ${account_info['First Name']}
+    Input    ${Signup_Txt_LastName}    ${account_info['Last Name']}
+    Input    ${Signup_Txt_Email}    ${account_info['Email']}
+    Input    ${Signup_Txt_Password}    ${account_info['Password']}
+    Wait Until Keyword Succeeds    6    2    Click    ${Signup_Btn_Signup}
+
+Open Web App
+    [Arguments]    ${alias}=None    ${browser}=${cfg_web_browser}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Open link ${cfg_url}
+    Wrapper.Open Browser    ${cfg_url}    ${browser}    ${alias}
+
+Upload File
+    [Arguments]    ${file_path}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Upload given file
+    Execute Javascript    document.getElementById('selectFile').setAttribute('style', 'display:block;')
+    Wrapper.Choose File    ${StringFile_Txt_FilePath}    ${file_path}
+
+Set Access Level
+    [Arguments]    ${modal_locator}    ${access_level}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Select Access Level (Re-share or View-only) in given modal (String File modal, Re-share modal, Change Right modal...)
+    Run Keyword If    '${access_level.lower()}' == 'reshare'    Click    ${modal_locator}${CbBx_ReShare}
+    ...    ELSE IF    '${access_level.lower()}' == 'viewonly'    Click    ${modal_locator}${CbBx_ViewOnly}
+    ...    ELSE    Fail    Invalid param for keyword Set Access Level: (${access_level})
+
+Set Expiration
+    [Arguments]    ${id}    ${expiration}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Set expiration by providing Id of expiration box
+    Execute Javascript    $('#${id}').data('DateTimePicker').setDate('${expiration}')
+
+Wait For Loading Screen
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Wait for loading screen done after logged in successfully
+    Wait Until Page Contains Element    //div[@id="ip-container" and @class="ng-scope loaded layout-switch"]    ${cfg_timeout}    Loading screen is over timeout
+
+Set Switch Box
+    [Arguments]    ${locator}    ${value}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Set value for Display Wartermark or Allow Printing (Yes or No)
+    Run Keyword If    '${value.lower()}' == 'yes'    Switch On    ${locator}
+    ...    ELSE IF    '${value.lower()}' == 'no'    Switch Off    ${locator}
+    ...    ELSE    Fail    Invalid argument for Set Switch Box keyword: (${value})
+
+Check File Exist
+    [Arguments]    ${file_name}    ${occurrence}=1    # \ ${occurrence} is the expected number of occurrence of ${file_name} in List File view
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Check if file exists ${occurrence} time(s)
+    Wait For Progress Bar
+    Wait For Progress Bar
+    Wait For Progress Bar
+    ${v_actual_occur}=    Get Matching Xpath Count    //table[@id="list-file"]/tbody/tr/td[3]/a[text() = "${file_name}"]
+    Comment    Should Not Be Equal    ${v_actual_occur}    0    Given file name does NOT exist
+    Should Be Equal    ${v_actual_occur}    ${occurrence}    There is/are ${v_actual_occur} file(s) ${file_name} in file list, but you expect ${occurrence}
+
+Select File
+    [Arguments]    ${file_name}    ${index}=1
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Select a file by name
+    Click    //table[@id="list-file"]/tbody/tr/td[./a[text()="${file_name}"]]/following-sibling::td[1]
+    #
+
+View File Info
+    [Arguments]    ${file_name}    ${tab}=Details
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: View file info
+    ${status}=    Run Keyword And Return Status    Wait Until Element Is Visible    //div[@class = "alert alert-info fade in instal-desktop-app"]//button
+    Run Keyword If    ${status}    Click    //div[@class = "alert alert-info fade in instal-desktop-app"]//button
+    Select File    ${file_name}
+    Click    ${AllFile_Btn_Info}
+    Run Keyword If    '${tab.lower()}'=='details'    Wait Until Keyword Succeeds    5    1    Click    ${FileInfo_Tab_Details}
+    ...    ELSE IF    '${tab.lower()}'=='recipients'    Wait Until Keyword Succeeds    5    1    Click
+    ...    ${FileInfo_Tab_Recipients}
+    ...    ELSE    Fail    Invalid param for keyword View File Info: ${tab}
+
+Navigate To Folder
+    [Arguments]    ${location_path}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Navigate to given path
+    Click    ${Btn_AllFile}
+    Sleep    ${cfg_sleep}
+    @{v_folders}=    Split String    ${location_path}    /
+    : FOR    ${item}    IN    @{v_folders}
+    \    Click File    ${item}
+    \    Wait For Progress Bar
+
+Click File
+    [Arguments]    ${file_name}    ${index}=1
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Click on file name
+    Click    //table[@id="list-file"]/tbody/tr/td/a[text()="${file_name}"]
+
+Wait For Progress Bar
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Wait until progress bar gone
+    Sleep    ${cfg_sleep}
+    Comment    : FOR    ${i}    IN RANGE    1    ${cfg_timeout}
+    Comment    \    ${v_isContain}=    Does Page Contain Element    ${ProgressBar}
+    Comment    \    Run Keyword If    '${v_isContain}'=='True'    Sleep    1s
+    ...    ELSE    Exit For Loop
+
+Does Page Contain Element
+    [Arguments]    ${locator}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Check page contain element, return True or False
+    ${isContain}=    Execute Javascript    return fat(); function fat(){ var a = document.evaluate('${locator}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; \ var b = document.body.contains(a); return b; }
+    [Return]    ${isContain}
+
+Do Toolbar Action
+    [Arguments]    ${file_name}    ${action}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Execute a action on Tool Bar
+    Select File    ${file_name}
+    ${v_enable_items}=    Get Enable Items in Toolbar
+    Should Contain    ${v_enable_items}    ${action.lower()}    Given "${action}" param is disable in toolbar or invalid value
+    Click    //*[@id="toolbar"]/a[contains(translate(@data-original-title, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"),"${action.lower()}") or contains(translate(@title, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"),"${action.lower()}")]
+
+Get Enable Items in Toolbar
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Return all enable actions on Tool Bar
+    ${res}=    Execute Javascript    var nodes = document.evaluate('//*[@id="toolbar"]/a[not(@class[contains(., "disabled")])]', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null); \ var res = []; for (var i = 0; i < nodes.snapshotLength; i++) { var tmpVal = nodes.snapshotItem(i).getAttribute("title").toLowerCase(); \ \ \ if(tmpVal == ""){ \ \ \ \ \ res.push(nodes.snapshotItem(i).getAttribute("data-original-title").toLowerCase()); \ \ \ } else { \ \ \ \ \ res.push(tmpVal); \ \ \ } \ } return res;
+    [Return]    ${res}
+
+Get Enable Items in Context Menu
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Return enable options in Context Menu
+    ${res}=    Execute Javascript    var a = $('#context-menu li:not(.hidden):not(.disabled) a'); var res = []; for(i=0; i < a.length -1; i++){ var content = window.getComputedStyle(a[i], ':after').getPropertyValue('content'); content = content.replace(new RegExp('"', 'g'),''); res.push(content.toLowerCase()); } return res;
+    [Return]    ${res}
+
+Right Click File
+    [Arguments]    ${file_name}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Right click file
+    Comment    Execute Javascript    var a = document.evaluate('//table[@id="list-file"]/tbody/tr/td[./a[text()="${file_name}"]]/following-sibling::td[1]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; contextMenuClick(a); function contextMenuClick(element){ \ \ \ \ var evt = element.ownerDocument.createEvent('MouseEvents'); \ \ \ \ \ var RIGHT_CLICK_BUTTON_CODE = 2; \ \ \ \ \ evt.initMouseEvent('contextmenu', true, true, \ \ \ \ \ \ \ \ \ element.ownerDocument.defaultView, 1, 0, 0, 0, 0, false, \ \ \ \ \ \ \ \ \ false, false, false, RIGHT_CLICK_BUTTON_CODE, null); \ \ \ \ \ if (document.createEventObject){ \ \ \ \ \ \ \ return element.fireEvent('onclick', evt) \ \ \ \ \ } \ \ \ \ else{ \ \ \ \ \ \ return !element.dispatchEvent(evt); \ \ \ \ } }
+    Comment    Focus    //a[@title="${file_name}"]
+    Wait Until Page Contains Element    //*[@id="list-file"]//a[@title="${file_name}"]    5s    Your file or folder "${file_name}" doesn't exist
+    Open Context Menu    //*[@id="list-file"]//a[@title="${file_name}"]
+
+fsweb_Mark All Emails As Read After Sign Up
+    [Arguments]    ${v_emailAddress}    ${v_password}
+    robotmail.Open Mailbox    imap.gmail.com    ${v_emailAddress}    ${v_password}    ${True}
+    Comment    robotmail.Mark Email As Read
+    robotmail.Delete All Emails
+    robotmail.Close Mailbox
+
+fsweb_Verify Email Reset Password
+    [Arguments]    ${v_firstname}    ${v_emailAddress}    ${v_password}
+    robotmail.Open Mailbox    imap.gmail.com    ${v_emailAddress}    ${v_password}    ${True}
+    ${v_emailID}=    robotmail.Wait For Mail
+    #    Email body
+    Comment    ${v_emailBody}=    ImapLibrary.Get Email Body    ${v_emailID}
+    #    Email content
+    Comment    ${v_result}=    ImapLibrary.Get Matches From Email    ${v_emailID}    [\\w\\W]*[\\s\\n]*Someone requested to change your FileString account's password.If this was you, you can:[\\s\\n]*The FileString Team - "String It"[\\w\\W]*
+    ${v_allLinks}=    robotmail.Get All Links From Email    ${v_emailID}
+    robotmail.Close Mailbox
+    Comment    ${v_length}=    Get Length    ${v_result}
+    Comment    Run Keyword If    ${v_length}!=1    Fail    Email content does not match with email's format
+    Set Test Variable    ${v_allLinks}
+
+fsweb_Goto Link on Email to Reset Password
+    [Arguments]    ${v_verifyLink}
+    Wrapper.Open Browser    ${v_verifyLink}    ${cfg_webBrowser}
+    #    Verify page contain "Email Address is verified"
+    Comment    ${v_result}=    Run Keyword And Ignore Error    Selenium2Library.Wait Until Page Contains    Congratulations!
+    Wait Until Page Contains Element    ${ResetPassword_Screen}
+    Comment    Close All Browsers
+    Comment    Run Keyword If    '${v_result[0]}'=='FAIL'    Fail    The link to verify email address is incorrect! Or Email address is not verified. Error message was: "${v_result[1]}"
+
+fsweb_Open Optional Browser And Set Selenium Speed
+    [Arguments]    ${v_baseUrl}    ${v_browser}    ${v_seleniumSpeed}
+    Open Browser    ${v_baseUrl}    ${v_browser}
+    Maximize Browser Window
+    Set Selenium Timeout    ${v_seleniumSpeed}
+
+Verify Error Alert With Message
+    [Arguments]    ${v_message}
+    [Documentation]    Author: Linhnguyen
+    Wait Until Element Is Visible    ${Msg_Error}    ${cfg_timeout}    Error message doesn't exist
+    ${v_currentMessage}=    Execute Javascript    var a = document.evaluate('//div[@class = "alert alert-danger fade in"]/button/following-sibling::text()[1]', document, null, XPathResult.ANY_UNORDERED_NODE_TYPE, null).singleNodeValue; return a.textContent.trim();
+    Should Be Equal    ${v_message}    ${v_currentMessage}    Error message doesn't similar, expected: "${v_message}", current message: "${v_currentMessage}"    False
+
+Verify Success Alert With Message
+    [Arguments]    ${v_message}
+    Wait Until Element Is Visible    ${Msg_Success}    ${cfg_timeout}    Successful message doesn't exist
+    ${v_currentMessage}=    Execute Javascript    var a = document.evaluate('//div[@class = "alert alert-success fade in"]/button/following-sibling::text()[1]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; return a.textContent.trim();
+    Should Be Equal    ${v_message}    ${v_currentMessage}    Successfully message doesn't similar, expected: "${v_message}", current message: "${v_currentMessage}"    False
+
+Make Primary Email
+    [Arguments]    ${email}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Make given email as primary
+    Go to Personal Info
+    Wait For Progress Bar
+    Execute Javascript    $('#AccountSetting label:contains("${email}")').next().click()
+    Wait For Progress Bar
+    Verify Success Alert With Message    Update Successfully.
+    Go to My Files Library
+
+fsweb_Click User Settings
+    Click    ${Navigation_UserSetting}
+    Wait Until Element Is Visible    ${UserSetting_Mdl}    ${cfg_timeout}    User setting panel doesn't exist.
+
+fsweb_Click User Preferences
+    Click    ${Navigation_UserPreferences}
+    Wait Until Element Is Visible    ${UserPreferences}    ${cfg_timeout}    User preferences panel doesn't exist.
+
+fsweb_Verify Max Length Of A TextBox
+    [Arguments]    ${v_elementLocator}    ${v_expectedMaxLength}    ${v_errorMessage}=${EMPTY}
+    ${v_expectedMaxLength}=    Evaluate    ${v_expectedMaxLength}
+    ${v_randomString}=    Generate Random String    ${v_expectedMaxLength + 10}
+    Input    ${v_elementLocator}    ${v_randomString}
+    ${v_currentValue}=    Get Value    ${v_elementLocator}
+    ${v_currentValue}=    Get Length    ${v_currentValue}
+    ${v_isPass}=    Run Keyword And Return Status    Should Be Equal    ${v_currentValue}    ${v_expectedMaxLength}
+    Run Keyword If    ${v_isPass}==False and "${v_errorMessage}"!=""    Fail    ${v_errorMessage}
+    Run Keyword If    ${v_isPass}==False and "${v_errorMessage}"==""    Fail    Your element locator: "${v_elementLocator}" max length doesn't ${v_expectedMaxLength}
+
+Delete File
+    [Arguments]    ${file_name}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Delete all file with given name
+    ${v_actual_occur}=    Get Matching Xpath Count    //table[@id="list-file"]/tbody/tr/td[3]/a[text() = "${file_name}"]
+    : FOR    ${i}    IN RANGE    1    ${v_actual_occur} + 1
+    \    Do Toolbar Action    ${file_name}    delete
+    \    Wait For Progress Bar
+    \    Click    ${DelWarning_Btn_Delete}
+    \    Wait For Progress Bar
+
+Get Switch Box Status
+    [Arguments]    ${locator}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Return current status (True or False) of given switch box
+    ${v_isChecked}=    Execute Javascript    return document.evaluate('${locator}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.checked;
+    [Return]    ${v_isChecked}
+
+Get Current Access Level
+    [Arguments]    ${modal_locator}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Return current access level (reshare or viewonly) of given modal
+    ${v_currentStatus}=    Execute Javascript    return document.evaluate('${modal_locator}//label[contains(@class, "radio") and contains(@class, "checked")]/text()[2]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.nodeValue
+    ${v_currentStatus}=    Set Variable    ${v_currentStatus.strip().lower()}
+    ${v_currentStatus}=    Replace String    ${v_currentStatus}    -    ${EMPTY}
+    [Return]    ${v_currentStatus}
+
+Check Right In File List
+    [Arguments]    ${file_name}    ${expected_right}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Verify right of file in file list
+    Check File Exist    ${file_name}
+    ${actual_right}=    Get Right In File List    ${file_name}
+    Should Be Equal    ${actual_right.lower()}    ${expected_right.lower()}    Actual right of file (${actual_right}) does NOT match expected right (${expected_right})
+
+Get Right In File List
+    [Arguments]    ${file_name}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Return right of file in file list
+    ${right}=    Get Text    //table[@id="list-file"]/tbody/tr/td[./a[text()="${file_name}"]]/following-sibling::td[2]
+    [Return]    ${right}
+
+Go to Preferences
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Navigate to Preferences
+    Click Account Menu
+    Click    ${Btn_Settings}
+    Click    ${Btn_SettingsPreferences}
+
+Go to Personal Info
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Navigate to Personal Info
+    Click Account Menu
+    Click    ${Btn_Settings}
+    Click    ${Btn_SettingsInfo}
+
+Go to My Files Library
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Navigate to My File Lib
+    Click Account Menu
+    Click    ${Btn_MyFilesLibrary}
+
+Check State of Switch
+    [Arguments]    ${locator}    ${expected_state}
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Verify state of switch control (active or deactive)
+    ${v_class}=    Execute Javascript    return document.evaluate('${locator}/../../@class', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.nodeValue
+    Run Keyword If    '${expected_state.lower()}' == 'deactive'    Should Contain    ${v_class}    deactivate    Switch should be deactive but it's active
+    Run Keyword If    '${expected_state.lower()}' == 'active'    Should Not Contain    ${v_class}    deactivate    Switch should be active but it's deactive
+
+Get Recipients
+    [Arguments]    ${file_name}    ${recipient_type}=all
+    [Documentation]    @Author: Quang Doan
+    ...    @Created Date: None
+    ...    @Description: Return list of recipients of given file
+    Select File    ${file_name}
+    Wait For Progress Bar
+    Comment    Run Keyword If    '${recipient_type.lower()}' == 'all'    ${v_recipients}=    Execute Javascript    var res = []; var a = $('#recipients ul li'); for(var i = 0; i < a.length; i++){ res.push(a.eq(i).find('span p:nth-child(2)').text()); } return res;
+    Comment    Run Keyword If    '${recipient_type.lower()}' == 'inactive'    ${v_recipients}=    Execute Javascript    var res = []; var a = $('#recipients ul li.inactive'); for(var i = 0; i < a.length; i++){ res.push(a.eq(i).find('span p:nth-child(2)').text()); } return res;
+    Comment    Run Keyword If    '${recipient_type.lower()}' == 'active'    ${v_recipients}=    Execute Javascript    var res = []; var a = $('#recipients ul li:not(.inactive)'); for(var i = 0; i < a.length; i++){ res.push(a.eq(i).find('span p:nth-child(2)').text()); } return res;
+    ${v_all}=    Execute Javascript    var res = []; var a = $('#recipients ul li'); for(var i = 0; i < a.length; i++){ res.push(a.eq(i).find('span p:nth-child(2)').text()); } return res;
+    ${v_inactive}=    Execute Javascript    var res = []; var a = $('#recipients ul li.inactive'); for(var i = 0; i < a.length; i++){ res.push(a.eq(i).find('span p:nth-child(2)').text()); } return res;
+    ${v_active}=    Execute Javascript    var res = []; var a = $('#recipients ul li:not(.inactive)'); for(var i = 0; i < a.length; i++){ res.push(a.eq(i).find('span p:nth-child(2)').text()); } return res;
+    ${v_recipients}=    Set Variable If    '${recipient_type.lower()}' == 'all'    ${v_all}
+    ${v_recipients}=    Set Variable If    '${recipient_type.lower()}' == 'inactive'    ${v_inactive}
+    ${v_recipients}=    Set Variable If    '${recipient_type.lower()}' == 'active'    ${v_active}
+    [Return]    ${v_recipients}
+
+Click Account Menu
+    ${v_is_visible}=    Run Keyword And Return Status    Element Should Be Visible    //*[@id="account-menu"]
+    Run Keyword If    ${v_is_visible} == False    Click    ${Account_Menu}
+
+Add 2nd Email
+    [Arguments]    ${email}
+    Go to Personal Info
+    Wait For Progress Bar
+    Input    ${PersonalInfo_Txt_Add2ndEmail}    ${email}
+    Click    ${PersonalInfo_Btn_Add2ndEmail}
+    Wait For Progress Bar
+    Click    ${MessageBox_Btn_Ok}
+    Wait For Progress Bar
+    Go to My Files Library
+    Wait For Progress Bar
+
+Delete 2nd Email
+    [Arguments]    ${email}
+    Go to Personal Info
+    Wait For Progress Bar
+    Execute Javascript    $('#AccountSetting label:contains("${email}")').next().next().click()
+    Wait For Progress Bar
+    Go to My Files Library
+
+Get Recipients in People View
+    Execute Javascript    $('#people-view div.people-tag,in').find('div.people-info > span.name > p').contents().filter(function() {return this.nodeType == 3;})
+
+String File
+    [Arguments]    ${file_path}=${EMPTY}    ${recipient}=${EMPTY}    ${access_level}=${EMPTY}    ${expiration}=${EMPTY}    ${allow_printing}=${EMPTY}    ${display_watermark}=${EMPTY}
+    ...    ${note}=${EMPTY}    ${upload_timeout}=60
+    Click    ${Btn_StringFile}
+    Run Keyword If    '${file_path}' != '${EMPTY}'    Upload File    ${file_path}
+    Run Keyword If    '${recipient}' != '${EMPTY}'    Input    ${StringFile_Txt_Recipients}    ${recipient},
+    Run Keyword If    '${access_level}' != '${EMPTY}'    Set Access Level    ${StringFile_Mdl}    ${access_level}
+    Run Keyword If    '${expiration}' != '${EMPTY}'    Set Expiration    stringExpiration    ${expiration}
+    Run Keyword If    '${allow_printing}' != '${EMPTY}'    Set Switch Box    ${StringFile_ChkBx_Printing}    ${allow_printing}
+    Run Keyword If    '${display_watermark}' != '${EMPTY}'    Set Switch Box    ${StringFile_ChkBx_Watermark}    ${display_watermark}
+    Input    ${StringFile_TxtAr_Note}    ${note}
+    Wait Until Page Contains Element    ${StringFile_PrgBar_Upload_Done}    ${upload_timeout}    String file: Upload failed!
+    Click    ${StringFile_Btn_String}

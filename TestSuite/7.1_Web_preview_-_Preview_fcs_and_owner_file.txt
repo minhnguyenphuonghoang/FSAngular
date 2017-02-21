@@ -1,0 +1,141 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_pathToWebPreviewDataFile}    ${v_testcaseID}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/WebPreview.txt
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[19209]_Preview file which is renamed before pushed file update
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Recipient img file']}    0.97
+
+fs[14906]_Preview normarl office files (fcs + owner file)
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Recipient img file']}    0.97
+
+fs[14908]_Preview normal non-office files (fcs + owner file)
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Recipient img file']}    0.97
+
+fs[14910]_Preview file excel which has many sheets (fcs + owner file)
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file1']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Recipient img file1']}    0.97
+
+fs[14912]_Preview pdf file which has large dimension (fcs + owner file)
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Recipient img file']}    0.97
+
+fs[14914]_Preview image file which has large dimension, large resolution (fcs + owner file)
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Recipient img file']}    0.97
+
+fs[14916]_Preview file which is coruppted (fcs + owner file)
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    Wait Until Element Is Visible    ${FileViewer}    ${cfg_timeout}    File View doesn't open!
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    Wait Until Element Is Visible    ${FileViewer}    ${cfg_timeout}    File View doesn't open!
+
+fs[14918]_Preview file which is protected (fcs + owner file)
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    Wait Until Element Is Visible    ${FileViewer}    ${cfg_timeout}    File View doesn't open!
+
+fs[19207]_Preview file which is edited content before pushed file update
+    Comment    Open owner file
+    Open Web App
+    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+    fsweb_Open A File Or Folder    ${v_data['Owner filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Owner img file']}    0.97
+    Close All Browsers
+    Comment    Open fcs file
+    Open Web App
+    SignIn    ${v_data['Recipient email address']}    ${v_data['Recipient password']}
+    fsweb_Open A File Or Folder    FileString Received Files
+    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    fsweb_Open A File Or Folder    ${v_data['Recipient filename']}
+    fsweb_Verify File Is Opened Correctly    ${cfg_sikuli_baseddir}/7.1 Web Preview/${v_data['Recipient img file']}    0.97

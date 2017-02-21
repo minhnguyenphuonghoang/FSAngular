@@ -1,0 +1,33 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_AddRecipientsDataFile}    ${v_testcaseID}    AND
+...               Open Web App    AND    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[7302]_File is NOT sent in case click Cancel button
+    Right Click File    ${v_data['Filename']}
+    Click    ${MenuWhenRightClickOnAFile_String}
+    fsweb_Verify_Reshare Popup Should Exist
+    Wait For Progress Bar
+    Click    ${Reshare_CancelButton}
+    fsweb_Verify_Reshare Popup Should Not Exist
+
+fs[7304]_File is NOT sent in case click X button
+    Right Click File    ${v_data['Filename']}
+    Click    ${MenuWhenRightClickOnAFile_String}
+    fsweb_Verify_Reshare Popup Should Exist
+    Click    ${Reshare_XButton}
+    fsweb_Verify_Reshare Popup Should Not Exist
+
+fs[7306]_File is NOT sent in case press ALT + F4 to close browser
+    Right Click File    ${v_data['Filename']}
+    Click    ${MenuWhenRightClickOnAFile_String}
+    fsweb_Verify_Reshare Popup Should Exist
+
+fs[7315]_CANNOT share file without entering recipient
+    Right Click File    ${v_data['Filename']}
+    Click    ${MenuWhenRightClickOnAFile_String}
+    fsweb_Verify_Reshare Popup Should Exist
+    Wait Until Element Is Visible    ${Reshare_StringButton}    ${cfg_timeout}    String button doesn't exist
+    Element Should Be Disabled    ${Reshare_StringButton}

@@ -1,0 +1,16 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_AddRecipientsDataFile}    ${v_testcaseID}    AND
+...               Open Web App    AND    SignIn    ${v_data['Owner email address']}    ${v_data['Owner password']}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[7277]_Cannot share file with expiration date time is in current date time or in the past
+    Right Click File    ${v_data['Filename']}
+    Click    ${MenuWhenRightClickOnAFile_String}
+    fsweb_Verify_Reshare Popup Should Exist
+    Wait For Progress Bar
+    fsweb_Input Recipient On Add Recipient Popup    ${v_data['Recipient Email address']}
+    Set Expiration    reShareExpiration    ${v_data['Time In The Pass']}
+    Click    ${Reshare_StringButton}
+    fsweb_Verify Error Message On Add Recipient Model    ${v_data['Error message']}

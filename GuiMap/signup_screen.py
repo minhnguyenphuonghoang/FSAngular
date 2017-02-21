@@ -1,0 +1,6 @@
+TextBox_FirstName =  "//input[@placeholder = 'First Name']"
+TextBox_LastName =  "//input[@placeholder = 'Last Name']"
+TextBox_Email = "//input[@placeholder = 'Your Email Address']"
+TextBox_CreatedPassword = "//input[@placeholder = 'Create a Password']"
+Button_Signup = "//button[text() = 'Sign Up Free']"
+Link_Login  = "//a[text() = 'Login!']"

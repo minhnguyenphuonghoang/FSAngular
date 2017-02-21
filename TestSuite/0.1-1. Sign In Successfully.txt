@@ -1,0 +1,29 @@
+*** Settings ***
+Suite Setup       Get Test Data    0.1-1. Sign In Successfully
+Resource          ../Resource/BusinessKeywords.txt
+Resource          ../Resource/LogicKeywords.txt
+
+*** Test Cases ***
+Sign in with valid username and password
+    Open Web App
+    SignIn    ${test_data[0]['Email']}    ${test_data[0]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[0]['TestcaseID']}    ${TEST_STATUS}
+
+Sign in with 2nd email
+    Open Web App
+    SignIn    ${test_data[1]['Email']}    ${test_data[1]['Password']}
+    SignOut
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[1]['TestcaseID']}    ${TEST_STATUS}
+
+Login after changing primary email
+    Open Web App
+    SignIn    ${test_data[2]['Email']}    ${test_data[2]['Password']}
+    Make Primary Email    ${test_data[2]['Primary Email']}
+    Wait For Progress Bar
+    Wait For Progress Bar
+    SignOut
+    SignIn    ${test_data[2]['Primary Email']}    ${test_data[2]['Password']}
+    Comment    Make Primary Email    ${test_data[2]['Email']}
+    [Teardown]    Run Keywords    Run Keyword And Ignore Error    Make Primary Email    ${test_data[2]['Email']}    AND    Close All Browsers
+    ...    AND    Submit Test Result    ${test_data[2]['TestcaseID']}    ${TEST_STATUS}

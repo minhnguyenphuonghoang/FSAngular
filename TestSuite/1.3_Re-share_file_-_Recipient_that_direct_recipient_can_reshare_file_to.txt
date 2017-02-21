@@ -1,0 +1,26 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_reshareDataFile}    ${v_testcaseID}    AND
+...               Open Web App    AND    SignIn    ${v_data['Direct recipient email address']}    ${v_data['Password']}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[10490]_Can reshare a file to a File String user successfully
+    No Operation
+
+fs[10492]_Can reshare file to one non - File String user successfully
+    [Tags]    RequiredMail
+    No Operation
+
+fs[10494]_Can reshare a file to secondary email of another user
+    No Operation
+
+fs[10496]_Can reshare a file to un-verified secondary email of a recipient and then it is verified
+    [Tags]    RequiredMail
+    No Operation
+
+fs[10502]_Can reshare a file to multi valid recipients at the same time successfully
+    No Operation
+
+fs[10504]_ONLY send file to valid emails and show alert in case reshare a file to multi valid and invalid recipients
+    No Operation

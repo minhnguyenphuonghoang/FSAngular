@@ -1,0 +1,87 @@
+*** Settings ***
+Suite Setup       Get Test Data    1.1-11. Collect name
+Resource          ../Resource/BusinessKeywords.txt
+Resource          ../Resource/LogicKeywords.txt
+Library           ../Tool/Libs/DeleteUserInDatabase.py
+
+*** Test Cases ***
+Must require collect name first when string file
+    ${v_test_data}=    Set Variable    ${test_data[0]}
+    Open Web App
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Be Visible    ${AskName_Mdl}    Ask name modal should show up
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+
+Name is collected successfully when entering valid characters and can string file after that
+    ${v_test_data}=    Set Variable    ${test_data[1]}
+    Open Web App
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Be Visible    ${AskName_Mdl}    Collecting name modal does NOT show up
+    Input    ${AskName_Txt_FirstName}    ${v_test_data['First Name']}
+    Input    ${AskName_Txt_LastName}    ${v_test_data['Last Name']}
+    Click    ${AskName_Btn_Save}
+    Wait For Progress Bar
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Not Be Visible    ${AskName_Mdl}    Ask name shoudl NOT show up
+    Element Should Be Visible    ${StringFile_Mdl}    String file modal should show up
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+    ...    AND    Clear Firstname And Lastname    ${v_test_data['Owner']}
+
+Does NOT require collecting name after collected name successfully at the first file stringing
+    ${v_test_data}=    Set Variable    ${test_data[2]}
+    Open Web App
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Be Visible    ${AskName_Mdl}    Collecting name modal does NOT show up
+    Input    ${AskName_Txt_FirstName}    ${v_test_data['First Name']}
+    Input    ${AskName_Txt_LastName}    ${v_test_data['Last Name']}
+    Click    ${AskName_Btn_Save}
+    Wait For Progress Bar
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Not Be Visible    ${AskName_Mdl}    Ask name modal should NOT show up
+    Element Should Be Visible    ${StringFile_Mdl}    String file modal should show up
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+    ...    AND    Clear Firstname And Lastname    ${v_test_data['Owner']}
+
+CANNOT string file if user cancel complete collecting name
+    ${v_test_data}=    Set Variable    ${test_data[3]}
+    Open Web App
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Be Visible    ${AskName_Mdl}    Collecting name modal does NOT show up
+    Input    ${AskName_Txt_FirstName}    ${v_test_data['First Name']}
+    Input    ${AskName_Txt_LastName}    ${v_test_data['Last Name']}
+    Click    ${AskName_Btn_Cancel}
+    Wait For Progress Bar
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Not Be Visible    ${StringFile_Mdl}    String file modal should NOT show up
+    Element Should Be Visible    ${AskName_Mdl}    Ask Name modal should show up
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+    ...    AND    Clear Firstname And Lastname    ${v_test_data['Owner']}
+
+CANNOT collect name successfully if user inputs invalid data for first name and last name
+    ${v_test_data}=    Set Variable    ${test_data[4]}
+    Open Web App
+    SignIn    ${v_test_data['Owner']}    ${v_test_data['Owner Pass']}
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Be Visible    ${AskName_Mdl}    Collecting name modal does NOT show up
+    Click    ${AskName_Btn_Save}
+    Verify Error Alert With Message    ${v_test_data['Expected Message']}
+    Click    ${AskName_Btn_Cancel}
+    Wait For Progress Bar
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    Element Should Not Be Visible    ${StringFile_Mdl}    String file modal should NOT show up
+    Element Should Be Visible    ${AskName_Mdl}    Ask Name modal should show up
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+    ...    AND    Clear Firstname And Lastname    ${v_test_data['Owner']}

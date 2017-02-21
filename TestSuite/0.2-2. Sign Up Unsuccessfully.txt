@@ -1,0 +1,89 @@
+*** Settings ***
+Suite Setup       Get Test Data    0.2-2. Sign Up Unsuccessfully
+Resource          ../Resource/BusinessKeywords.txt
+Resource          ../Resource/LogicKeywords.txt
+
+*** Test Cases ***
+Sign up with empty values
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[0]}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[0]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with empty first name
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[1]}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[1]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with empty last name
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[2]}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[2]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with empty email
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[3]}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[3]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with empty password
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[4]}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[4]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with wrong email format
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[5]}
+    Wait For Progress Bar
+    Wrapper.Page Should NOT Contain    ${Btn_StringFile}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[5]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with verified primary email
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[6]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[6]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[6]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with verified 2nd email
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[7]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[7]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[7]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with password having < 4 chars
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[8]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[8]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[8]['TestcaseID']}    ${TEST_STATUS}
+
+Sign up with password having > 36 chars
+    Open Web App
+    Click    ${Signin_Link_SignUp}
+    SignUp    ${test_data[9]}
+    Wait For Progress Bar
+    Wrapper.Page Should Contain    ${Msg_Error}
+    Verify Error Alert With Message    ${test_data[9]['Expected Message']}
+    [Teardown]    Run Keywords    Close All Browsers    AND    Submit Test Result    ${test_data[9]['TestcaseID']}    ${TEST_STATUS}

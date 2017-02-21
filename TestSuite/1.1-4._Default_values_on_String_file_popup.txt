@@ -1,0 +1,67 @@
+*** Settings ***
+Suite Setup       Get Test Data    1.1-4. Check default values
+Resource          ../Resource/BusinessKeywords.txt
+
+*** Test Cases ***
+Check default values of access level on String file popup
+    ${v_testdata}=    Set Variable    ${test_data[0]}
+    Open Web App    browser1
+    SignIn    ${v_testdata['Owner']}    ${v_testdata['Owner Pass']}
+    Go to Preferences
+    Wait For Progress Bar
+    ${v_expectedAccessLevel}=    Get Current Access Level    ${UserPreferences_Tab_SharingDefault}
+    ${v_expectedAllowPrinting}=    Get Switch Box Status    ${UserPreferences_ChkBx_Printing}
+    ${v_expectedDisplayWatermark}=    Get Switch Box Status    ${UserPreferences_ChkBx_Watermark}
+    Go to My Files Library
+    Wait For Progress Bar
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    ${v_actualAccessLevel}=    Get Current Access Level    ${StringFile_Mdl}
+    ${v_actualAllowPrinting}=    Get Switch Box Status    ${StringFile_ChkBx_Printing}
+    ${v_actualDisplayWatermark}=    Get Switch Box Status    ${StringFile_ChkBx_Watermark}
+    Should Be Equal    ${v_expectedAccessLevel}=    ${v_actualAccessLevel}=    Access Level in string file modal does NOT match preferences
+    Should Be Equal    ${v_expectedAllowPrinting}=    ${v_actualAllowPrinting}=    Allow printing in string file modal does NOT match preferences
+    Should Be Equal    ${v_expectedDisplayWatermark}=    ${v_actualDisplayWatermark}=    Display watermark in string file modal does NOT match preferences
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+
+Check default values of allow printing on String file popup
+    ${v_testdata}=    Set Variable    ${test_data[1]}
+    Open Web App    browser1
+    SignIn    ${v_testdata['Owner']}    ${v_testdata['Owner Pass']}
+    Go to Preferences
+    Wait For Progress Bar
+    ${v_expectedAccessLevel}=    Get Current Access Level    ${UserPreferences_Tab_SharingDefault}
+    ${v_expectedAllowPrinting}=    Get Switch Box Status    ${UserPreferences_ChkBx_Printing}
+    ${v_expectedDisplayWatermark}=    Get Switch Box Status    ${UserPreferences_ChkBx_Watermark}
+    Go to My Files Library
+    Wait For Progress Bar
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    ${v_actualAccessLevel}=    Get Current Access Level    ${StringFile_Mdl}
+    ${v_actualAllowPrinting}=    Get Switch Box Status    ${StringFile_ChkBx_Printing}
+    ${v_actualDisplayWatermark}=    Get Switch Box Status    ${StringFile_ChkBx_Watermark}
+    Should Be Equal    ${v_expectedAccessLevel}=    ${v_actualAccessLevel}=    Access Level in string file modal does NOT match preferences
+    Should Be Equal    ${v_expectedAllowPrinting}=    ${v_actualAllowPrinting}=    Allow printing in string file modal does NOT match preferences
+    Should Be Equal    ${v_expectedDisplayWatermark}=    ${v_actualDisplayWatermark}=    Display watermark in string file modal does NOT match preferences
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers
+
+Check default values of display watermark on String file popup
+    ${v_testdata}=    Set Variable    ${test_data[2]}
+    Open Web App    browser1
+    SignIn    ${v_testdata['Owner']}    ${v_testdata['Owner Pass']}
+    Go to Preferences
+    Wait For Progress Bar
+    ${v_expectedAccessLevel}=    Get Current Access Level    ${UserPreferences_Tab_SharingDefault}
+    ${v_expectedAllowPrinting}=    Get Switch Box Status    ${UserPreferences_ChkBx_Printing}
+    ${v_expectedDisplayWatermark}=    Get Switch Box Status    ${UserPreferences_ChkBx_Watermark}
+    Go to My Files Library
+    Wait For Progress Bar
+    Click    ${Btn_StringFile}
+    Wait For Progress Bar
+    ${v_actualAccessLevel}=    Get Current Access Level    ${StringFile_Mdl}
+    ${v_actualAllowPrinting}=    Get Switch Box Status    ${StringFile_ChkBx_Printing}
+    ${v_actualDisplayWatermark}=    Get Switch Box Status    ${StringFile_ChkBx_Watermark}
+    Should Be Equal    ${v_expectedAccessLevel}=    ${v_actualAccessLevel}=    Access Level in string file modal does NOT match preferences
+    Should Be Equal    ${v_expectedAllowPrinting}=    ${v_actualAllowPrinting}=    Allow printing in string file modal does NOT match preferences
+    Should Be Equal    ${v_expectedDisplayWatermark}=    ${v_actualDisplayWatermark}=    Display watermark in string file modal does NOT match preferences
+    [Teardown]    Run Keywords    Submit Test Result    ${v_test_data['TestcaseID']}    ${TEST_STATUS}    AND    Close All Browsers

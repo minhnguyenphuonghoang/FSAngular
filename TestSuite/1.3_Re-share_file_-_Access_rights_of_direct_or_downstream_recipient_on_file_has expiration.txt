@@ -1,0 +1,48 @@
+*** Settings ***
+Test Setup        Run Keywords    Get Test Case ID From Test Case Name    AND    fsweb_Load Data From File    ${v_reshareDataFile}    ${v_testcaseID}    AND
+...               Open Web App    AND    SignIn    ${v_data['Direct recipient email address']}    ${v_data['Password']}
+Test Teardown     Run Keywords    fsweb_Submit Test Status Into Testlink    ${v_testcaseID}    AND    Close All Browsers
+Resource          ../Resource/AddRecipients.txt
+
+*** Test Cases ***
+fs[7590]_Direct recipient must choose date time which is greater than current date time when reshare file
+    Comment    fsweb_Open A File Or Folder    FileString Received Files
+    Comment    Wait For Progress Bar
+    Comment    fsweb_Open A File Or Folder    ${v_data['Owner fullname']}
+    Comment    Wait For Progress Bar
+    Comment    Right Click File    ${v_data['Filename']}
+    Comment    Click    ${MenuWhenRightClickOnAFile_ReShare}
+    Comment    fsweb_Verify_Reshare Popup Should Exist
+    Comment    Wait For Progress Bar
+    Comment    fsweb_Input Recipient On Add Recipient Popup    ${v_data['Recipient Email address']}
+    Comment    Set Expiration    reShareExpiration    ${v_data['Time In The Pass']}
+    Comment    Click    ${Reshare_StringButton}
+    Comment    fsweb_Verify Error Message On Add Recipient Model    ${v_data['Error message']}
+    Log    123
+
+fs[7592]_Direct recipient can view file when his access does NOT reach expiration
+    No Operation
+
+fs[7596]_Can change expiration within allowed expiration range when reshape file
+    No Operation
+
+fs[7598]_CANNOT reshare file to other recipients without expiration date if owner set expiration
+    No Operation
+
+fs[7600]_CANNOT reshare file to other recipients with expiration which is greater than expiration owner set
+    No Operation
+
+fs[7602]_Direct recipient can view file forever if owner did not set Expiration Date to him
+    No Operation
+
+fs[11234]_Downstream recipient can view file when his access does NOT reach expiration
+    No Operation
+
+fs[11236]_Downstream recipient CANNOT view file when reached expiration
+    No Operation
+
+fs[11240]_Downstream recipient can view file forever if direct recipient did not set expiration to him
+    No Operation
+
+fs[16683]_FILE IS REVOKE WHEN EXPIRATION REACHED
+    No Operation

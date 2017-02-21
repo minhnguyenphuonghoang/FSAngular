@@ -1,0 +1,21 @@
+*** Settings ***
+Suite Setup       fsweb_LoginSucessfully    ${cfg_test_data_location}\\UserPreperences.xlsx    0.1-1. User Preperences    Email    Password
+Test Teardown     Close All Browsers
+Resource          ../Resource/userpreperences.txt
+Resource          ../Resource/wrapper.txt
+
+*** Test Cases ***
+Click gear icon
+    fsweb_InvokePreferenceForm
+    [Teardown]    Run Keywords    SignOut
+    ...    AND    Close All Browsers
+
+Check basic function of controls (text fields, checkboxs, radio button, list boxes...)
+    fsweb_InvokePreferenceForm
+    fsweb_VerifyCheckBoxStatus    ${User_Pre_Allow_Printing_CheckBox}    1
+    Select Checkbox    ${User_Pre_Allow_Printing_CheckBox}
+    fsweb_VerifyCheckBoxStatus    ${User_Pre_Allow_Printing_CheckBox}    0
+    Select Checkbox    ${User_Pre_Allow_Printing_CheckBox}
+    Get Element Attribute    ${User_Pre_Save_Btn}@class
+    Comment    fsweb_VerifyButtonStatus    Element is not disabled    enabled
+    Comment    fsweb_VerifyButtonStatus    Element is not disabled    disabled
