@@ -6,10 +6,7 @@ Library           String
 Library           ../Tool/Libs/TestlinkAPIClient.py    ${cfg_apiKey}    ${cfg_testplanID}    ''
 Resource          CommonKeywords.txt
 Resource          Resetpassword.txt
-Resource          RevokeAccess.txt
 Library           OperatingSystem
-Resource          AddRecipients.txt
-Resource          RestoreAccess.txt
 Resource          LogicKeywords.txt
 
 *** Keywords ***
